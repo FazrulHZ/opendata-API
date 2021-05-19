@@ -2,4 +2,4 @@ public/upload/*
 !public/upload/Readme
 public/images/*
 !public/images/default.png
-node_modules
+node_modules/
