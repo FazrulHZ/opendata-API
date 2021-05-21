@@ -1,6 +1,7 @@
-exports.ok = function (message, values, res) {
+exports.ok = function (success, message, values, res) {
     var data = {
         'status': 200,
+        'success': success,
         'message': message,
         'data': values
     };
@@ -20,9 +21,10 @@ exports.error404 = function (res) {
     res.end();
 };
 
-exports.error = function (message, values, res) {
+exports.error = function (success, message, values, res) {
     var data = {
         'status': 500,
+        'success': success,
         'message': message,
         'data': values
     };

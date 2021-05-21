@@ -1,17 +1,28 @@
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+var path = require('path');
 
 let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
+var storage = multer.diskStorage({
+    destination: path.join(__dirname + './../public/upload/organisasiGambar'),
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+var upload = multer({ storage: storage });
+
 router.get('/', function (req, res, next) {
     connection.query('SELECT * FROM tb_organisasi', function (error, rows, field) {
         if (error) {
             console.log(error);
         } else {
-            response.ok('Data Berhasil Diambil', rows, res);
+            response.ok(true, 'Data Berhasil Diambil', rows, res);
         }
     });
 });
@@ -30,10 +41,11 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', async function (req, res, next) {
+router.post('/', upload.single('org_foto'), async function (req, res, next) {
 
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
+    let org_foto = req.file.filename;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
@@ -46,43 +58,44 @@ router.post('/', async function (req, res, next) {
     });
 
     if (check > 0) {
-        response.error("Nama Organisasi Telah Terdaftar!", 'empty', res);
+        response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug) values(?, ?)', [org_nama, org_slug.toLowerCase()], function (error, rows, field) {
+        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug, org_foto) values(?, ?, ?)', [org_nama, org_slug.toLowerCase(), org_foto], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok("Berhasil Menambahkan Data!", 'success', res);
+                response.ok(true, "Berhasil Menambahkan Data!", 'success', res);
             }
         })
     }
 
 });
 
-router.put('/', async function (req, res, next) {
+router.put('/', upload.single('org_foto'), async function (req, res, next) {
 
     let org_id = req.body.org_id;
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
+    let org_foto = req.file.filename;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(*) AS cnt FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
+        connection.query('SELECT COUNT(org_id) AS cnt, org_id FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
-                resolve(rows[0].cnt);
+                resolve(rows[0]);
             }
         });
     });
 
-    if (check > 0) {
-        response.error("Nama Organisasi Telah Terdaftar!", 'empty', res);
+    if (check.cnt > 0 && check.org_id != org_id) {
+        response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=? WHERE org_id=?', [org_nama, org_slug, org_id], function (error, rows, field) {
+        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=?, org_foto=? WHERE org_id=?', [org_nama, org_slug, org_foto, org_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok("Berhasil Di Edit!", 'success', res)
+                response.ok(true, "Berhasil Di Edit!", 'success', res)
             }
         })
     }
@@ -91,13 +104,30 @@ router.put('/', async function (req, res, next) {
 router.delete('/:id', function (req, res) {
     var org_id = req.params.id;
 
-    connection.query('DELETE FROM tb_organisasi WHERE org_id=?', [org_id], function (error, rows, field) {
-        if (error) {
-            console.log(error)
+    const check = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_organisasi WHERE org_id = ?', [org_id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    fs.unlink("./public/upload/organisasiGambar/" + check.org_foto, (err) => {
+        if (err) {
+            console.log("failed to delete local image:" + err);
         } else {
-            response.ok("Berhasil Menghapus Data!!", 'success', res)
+            console.log('successfully deleted local image');
+            connection.query('DELETE FROM tb_organisasi WHERE org_id=?', [org_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    response.ok(true, "Berhasil Menghapus Data!!", 'success', res)
+                }
+            })
         }
-    })
+    });
 });
 
 module.exports = router;
