@@ -77,10 +77,9 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     let org_id = req.body.org_id;
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
-    let org_foto = req.file.filename;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(org_id) AS cnt, org_id FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
+        connection.query('SELECT COUNT(org_id) AS cnt, org_foto, org_id FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -88,6 +87,8 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
             }
         });
     });
+
+    let org_foto = req.file === undefined ? check.org_foto : req.file.filename;
 
     if (check.cnt > 0 && check.org_id != org_id) {
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
