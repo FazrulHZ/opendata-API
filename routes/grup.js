@@ -118,7 +118,7 @@ router.delete('/:id', async function (req, res) {
         });
     });
 
-    fs.unlink("./public/upload/organisasiGambar/" + check.grup_foto, (err) => {
+    fs.unlink("./public/upload/grupGambar/" + check.grup_foto, (err) => {
         if (err) {
             console.log("failed to delete local image:" + err);
         } else {
