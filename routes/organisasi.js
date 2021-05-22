@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var path = require('path');
+const fs = require('fs')
 
 let slugify = require('slugify')
 
@@ -101,7 +102,7 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     }
 });
 
-router.delete('/:id', function (req, res) {
+router.delete('/:id', async function (req, res) {
     var org_id = req.params.id;
 
     const check = await new Promise(resolve => {
