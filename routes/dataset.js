@@ -7,15 +7,6 @@ let slugify = require('slugify')
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
-var storage = multer.diskStorage({
-    destination: path.join(__dirname + './../public/upload/datasetGambar'),
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-
-var upload = multer({ storage: storage });
-
 router.get('/', function (req, res, next) {
     connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id ORDER BY tb_dataset.created_at', function (error, rows, field) {
         if (error) {
@@ -40,7 +31,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', upload.single('dataset_foto'), async function (req, res, next) {
+router.post('/', async function (req, res, next) {
 
     let dataset_nama = req.body.dataset_nama;
     let dataset_slug = slugify(dataset_nama.toLowerCase());
@@ -62,7 +53,7 @@ router.post('/', upload.single('dataset_foto'), async function (req, res, next) 
     if (check > 0) {
         response.error(false, "Dataset Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('INSERT INTO tb_dataset (dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, org_id, grup_id) values(?, ?, ?, ?)', [dataset_nama, dataset_slug.toLowerCase(), dataset_sumber, dataset_cakupan, org_id, grup_id], function (error, rows, field) {
+        connection.query('INSERT INTO tb_dataset (dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, org_id, grup_id) values(?, ?, ?, ?, ?, ?)', [dataset_nama, dataset_slug.toLowerCase(), dataset_sumber, dataset_cakupan, org_id, grup_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
@@ -73,7 +64,7 @@ router.post('/', upload.single('dataset_foto'), async function (req, res, next) 
 
 });
 
-router.put('/', upload.single('dataset_foto'), async function (req, res, next) {
+router.put('/', async function (req, res, next) {
 
     let dataset_id = req.body.dataset_id;
     let dataset_nama = req.body.dataset_nama;
@@ -96,7 +87,7 @@ router.put('/', upload.single('dataset_foto'), async function (req, res, next) {
     if (check > 0 && check.dataset_id != dataset_id) {
         response.error(false, "Dataset Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_dataset SET dataset_nama=?, dataset_slug=?, dataset_sumber=?, dataset_cakupan=?, org_id=?, grup_id=? WHERE dataset_id=?', [dataset_nama, dataset_slug.toLowerCase(), dataset_sumber, dataset_cakupan, org_id, grup_id, dataset_id], function (error, rows, field) {
+        connection.query('UPDATE tb_dataset SET dataset_nama=?, dataset_slug=?, dataset_sumber=?, dataset_cakupan=?, org_id=?, grup_id=? WHERE dataset_id=?', [dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, org_id, grup_id, dataset_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
