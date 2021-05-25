@@ -95,7 +95,7 @@ router.put('/', upload.single('grup_foto'), async function (req, res, next) {
     if (check.cnt > 0 && check.grup_id != grup_id) {
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_grup SET grup_nama=?, grup_slug=?, grup_foto=?, grup_deskripsi=? WHERE grup_id=?', [grup_nama, grup_slug, grup_foto, grup_deskripsi, grup_id], function (error, rows, field) {
+        connection.query('UPDATE tb_grup SET grup_nama=?, grup_slug=?, grup_foto=?, grup_deskripsi=? WHERE grup_id=?', [grup_nama, grup_slug.toLowerCase(), grup_foto, grup_deskripsi, grup_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {

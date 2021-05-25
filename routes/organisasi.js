@@ -93,7 +93,7 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     if (check.cnt > 0 && check.org_id != org_id) {
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=?, org_foto=? WHERE org_id=?', [org_nama, org_slug, org_foto, org_id], function (error, rows, field) {
+        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=?, org_foto=? WHERE org_id=?', [org_nama, org_slug.toLowerCase(), org_foto, org_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
