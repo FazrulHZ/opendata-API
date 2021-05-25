@@ -41,11 +41,11 @@ router.post('/', async function (req, res, next) {
     let grup_id = req.body.grup_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(dataset_slug) AS cnt, dataset_id FROM tb_dataset WHERE dataset_slug = ?', [dataset_slug], function (error, rows, field) {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_dataset WHERE dataset_slug = ?', [dataset_slug], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
-                resolve(rows[0]);
+                resolve(rows[0].cnt);
             }
         });
     });
