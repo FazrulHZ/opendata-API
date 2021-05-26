@@ -37,6 +37,7 @@ router.post('/', async function (req, res, next) {
     let dataset_slug = slugify(dataset_nama.toLowerCase());
     let dataset_sumber = req.body.dataset_sumber;
     let dataset_cakupan = req.body.dataset_cakupan;
+    let dataset_deskripsi = req.body.dataset_deskripsi;
     let org_id = req.body.org_id;
     let grup_id = req.body.grup_id;
 
@@ -53,7 +54,7 @@ router.post('/', async function (req, res, next) {
     if (check > 0) {
         response.error(false, "Dataset Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('INSERT INTO tb_dataset (dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, org_id, grup_id) values(?, ?, ?, ?, ?, ?)', [dataset_nama, dataset_slug.toLowerCase(), dataset_sumber, dataset_cakupan, org_id, grup_id], function (error, rows, field) {
+        connection.query('INSERT INTO tb_dataset (dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, dataset_deskripsi, org_id, grup_id) values(?, ?, ?, ?, ?, ?, ?)', [dataset_nama, dataset_slug.toLowerCase(), dataset_sumber, dataset_cakupan, dataset_deskripsi, org_id, grup_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
@@ -71,6 +72,7 @@ router.put('/', async function (req, res, next) {
     let dataset_slug = slugify(dataset_nama.toLowerCase());
     let dataset_sumber = req.body.dataset_sumber;
     let dataset_cakupan = req.body.dataset_cakupan;
+    let dataset_deskripsi = req.body.dataset_deskripsi;
     let org_id = req.body.org_id;
     let grup_id = req.body.grup_id;
 
@@ -87,7 +89,7 @@ router.put('/', async function (req, res, next) {
     if (check > 0 && check.dataset_id != dataset_id) {
         response.error(false, "Dataset Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_dataset SET dataset_nama=?, dataset_slug=?, dataset_sumber=?, dataset_cakupan=?, org_id=?, grup_id=? WHERE dataset_id=?', [dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, org_id, grup_id, dataset_id], function (error, rows, field) {
+        connection.query('UPDATE tb_dataset SET dataset_nama=?, dataset_slug=?, dataset_sumber=?, dataset_cakupan=?, dataset_deskripsi=?, org_id=?, grup_id=? WHERE dataset_id=?', [dataset_nama, dataset_slug, dataset_sumber, dataset_cakupan, dataset_deskripsi, org_id, grup_id, dataset_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
