@@ -8,7 +8,7 @@ var response = require('../helper/response');
 var connection = require('../helper/connection');
 
 router.get('/', function (req, res, next) {
-    connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id ORDER BY tb_dataset.created_at', function (error, rows, field) {
+    connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id ORDER BY tb_dataset.created_at DESC', function (error, rows, field) {
         if (error) {
             console.log(error);
         } else {
