@@ -49,6 +49,7 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
   let user_email = req.body.user_email.toLowerCase();
   let user_fullname = req.body.user_fullname;
   let user_password = req.body.user_password;
+  let user_lvl = req.body.user_lvl.toLowerCase();
   let org_id = req.body.org_id;
 
   const checkEmail = await new Promise(resolve => {
@@ -78,7 +79,7 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
   if (checkEmail > 0 && checkUsernama > 0) {
     response.error(false, "Email Atau Username Telah Terdaftar!", 'empty', res);
   } else {
-    connection.query('INSERT INTO tb_user (user_nama, user_email, user_fullname, user_password, org_id) values(?, ?, ?, ?, ?)', [user_nama.toLowerCase(), user_email.toLowerCase(), user_fullname, pass, org_id], function (error, rows, field) {
+    connection.query('INSERT INTO tb_user (user_nama, user_email, user_fullname, user_password, user_lvl, org_id) values(?, ?, ?, ?, ?, ?)', [user_nama.toLowerCase(), user_email.toLowerCase(), user_fullname, pass, user_lvl, org_id], function (error, rows, field) {
       if (error) {
         console.log(error);
       } else {
@@ -96,6 +97,7 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
   let user_email = req.body.user_email.toLowerCase();
   let user_fullname = req.body.user_fullname;
   let user_password = req.body.user_password;
+  let user_lvl = req.body.user_lvl.toLowerCase();
   let org_id = req.body.org_id;
 
   const checkEmail = await new Promise(resolve => {
@@ -131,7 +133,7 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
   if (checkUsernama > 0 && checkEmail > 0 && check.user_id != user_id) {
     response.error(false, "Email Atau Username Telah Terdaftar!", 'empty', res);
   } else {
-    connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, user_password, org_id, user_id], function (error, rows, field) {
+    connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_lvl=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, user_password, user_lvl, org_id, user_id], function (error, rows, field) {
       if (error) {
         console.log(error);
       } else {
