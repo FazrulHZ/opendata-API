@@ -17,16 +17,16 @@ router.get('/', function (req, res, next) {
     });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:slug', function (req, res, next) {
 
-    var dataset_id = req.params.id;
+    var dataset_slug = req.params.slug;
 
-    connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id WHERE dataset_id == ?', [dataset_id],
+    connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id WHERE dataset_slug = ?', [dataset_slug],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok('Data Berhasil Diambil', rows, res);
+                response.ok(true, 'Data Berhasil Diambil', rows[0], res);
             }
         });
 });

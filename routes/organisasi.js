@@ -37,7 +37,7 @@ router.get('/:id', function (req, res, next) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok('Data Berhasil Diambil', rows, res);
+                response.ok(true, 'Data Berhasil Diambil', rows, res);
             }
         });
 });
@@ -46,6 +46,7 @@ router.post('/', upload.single('org_foto'), async function (req, res, next) {
 
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
+    let org_ket = req.body.org_ket;
     let org_foto = req.file.filename;
 
     const check = await new Promise(resolve => {
@@ -61,7 +62,7 @@ router.post('/', upload.single('org_foto'), async function (req, res, next) {
     if (check > 0) {
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug, org_foto) values(?, ?, ?)', [org_nama, org_slug.toLowerCase(), org_foto], function (error, rows, field) {
+        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug, org_ket, org_foto,) values(?, ?, ?, ?)', [org_nama, org_slug.toLowerCase(), org_ket, org_foto], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
@@ -77,6 +78,7 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     let org_id = req.body.org_id;
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
+    let org_ket = req.body.org_ket;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(org_id) AS cnt, org_foto, org_id FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
@@ -93,7 +95,7 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     if (check.cnt > 0 && check.org_id != org_id) {
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=?, org_foto=? WHERE org_id=?', [org_nama, org_slug, org_foto, org_id], function (error, rows, field) {
+        connection.query('UPDATE tb_organisasi SET org_nama=?, org_slug=?, org_ket=?, org_foto=? WHERE org_id=?', [org_nama, org_slug, org_ket, org_foto, org_id], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
