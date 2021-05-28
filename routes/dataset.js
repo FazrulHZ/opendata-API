@@ -7,12 +7,23 @@ let slugify = require('slugify')
 var response = require('../helper/response');
 var connection = require('../helper/connection');
 
-router.get('/', function (req, res, next) {
+router.get('/', async function (req, res, next) {
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_dataset', function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
     connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id ORDER BY tb_dataset.created_at DESC', function (error, rows, field) {
         if (error) {
             console.log(error);
         } else {
-            response.ok(true, 'Data Berhasil Diambil', rows, res);
+            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
         }
     });
 });
@@ -26,7 +37,7 @@ router.get('/:slug', function (req, res, next) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, 'Data Berhasil Diambil', rows[0], res);
+                response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
             }
         });
 });
@@ -58,7 +69,7 @@ router.post('/', async function (req, res, next) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, "Berhasil Menambahkan Data!", 'success', res);
+                response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
             }
         })
     }
@@ -93,7 +104,7 @@ router.put('/', async function (req, res, next) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, "Berhasil Di Edit!", 'success', res)
+                response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
             }
         })
     }
@@ -106,7 +117,7 @@ router.delete('/:id', async function (req, res) {
         if (error) {
             console.log(error)
         } else {
-            response.ok(true, "Berhasil Menghapus Data!!", 'success', res)
+            response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
         }
     })
 });

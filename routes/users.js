@@ -19,12 +19,23 @@ var storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-router.get('/', function (req, res, next) {
+router.get('/', async function (req, res, next) {
+
+  const count = await new Promise(resolve => {
+    connection.query('SELECT COUNT(*) AS cnt FROM tb_user', function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0].cnt);
+      }
+    });
+  });
+
   connection.query('SELECT * FROM tb_user LEFT JOIN tb_organisasi ON tb_user.org_id = tb_organisasi.org_id ', function (error, rows, field) {
     if (error) {
       console.log(error);
     } else {
-      response.ok(true, 'Data Berhasil Diambil', rows, res);
+      response.ok(true, 'Data Berhasil Diambil', count, rows, res);
     }
   });
 });
@@ -38,7 +49,7 @@ router.get('/:id', function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok('Data Berhasil Diambil', rows, res);
+        response.ok('Data Berhasil Diambil', 1, rows, res);
       }
     });
 });
@@ -83,7 +94,7 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(true, "Berhasil Menambahkan Data!", 'success', res);
+        response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
       }
     })
   }
@@ -137,7 +148,7 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
       if (error) {
         console.log(error);
       } else {
-        response.ok(true, "Berhasil Di Edit!", 'success', res)
+        response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
       }
     })
   }
@@ -150,7 +161,7 @@ router.delete('/:id', async function (req, res) {
     if (error) {
       console.log(error)
     } else {
-      response.ok(true, "Berhasil Menghapus Data!!", 'success', res)
+      response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
     }
   })
 
