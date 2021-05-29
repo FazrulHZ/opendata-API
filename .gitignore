@@ -1,5 +1,8 @@
 node_modules/
-public/upload/*
+public/upload/dataset/*
+public/upload/grupGambar/*
+public/upload/organisasiGambar/*
+public/upload/userGambar/*
 public/images/*
 !public/upload/Readme
 !public/images/default.png

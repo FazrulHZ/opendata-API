@@ -42,14 +42,14 @@ router.get('/', async function (req, res, next) {
 
 router.get('/:id', function (req, res, next) {
 
-    var org_id = req.params.id;
+    var org_slug = req.params.id;
 
-    connection.query('SELECT * FROM tb_organisasi WHERE org_id == ?', [org_id],
+    connection.query('SELECT * FROM tb_organisasi WHERE org_slug = ?', [org_slug],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, 'Data Berhasil Diambil', 1, rows, res);
+                response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
             }
         });
 });
