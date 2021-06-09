@@ -4,5 +4,9 @@ public/upload/grupGambar/*
 public/upload/organisasiGambar/*
 public/upload/userGambar/*
 public/images/*
+
 !public/upload/Readme
 !public/images/default.png
+!public/upload/grupGambar/default.jpg
+!public/upload/organisasiGambar/default.svg
+!public/upload/userGambar/default.png
