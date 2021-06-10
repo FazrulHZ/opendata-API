@@ -10,6 +10,7 @@ var usersRouter = require('./routes/users');
 var organisasiRouter = require('./routes/organisasi');
 var grupRouter = require('./routes/grup');
 var datasetRouter = require('./routes/dataset');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -22,13 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors({origin: '*'}));
+app.use(cors({ origin: '*' }));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/organisasi', organisasiRouter);
 app.use('/grup', grupRouter);
 app.use('/dataset', datasetRouter);
+app.use('/login', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
