@@ -59,7 +59,7 @@ router.post('/', upload.single('org_foto'), async function (req, res, next) {
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
     let org_ket = req.body.org_ket;
-    let org_foto = req.file.filename;
+    let org_foto = req.file === undefined ? "" : req.file.filename;
 
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
@@ -72,15 +72,19 @@ router.post('/', upload.single('org_foto'), async function (req, res, next) {
     });
 
     if (check > 0) {
+
         response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
+
     } else {
-        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug, org_ket, org_foto,) values(?, ?, ?, ?)', [org_nama, org_slug.toLowerCase(), org_ket, org_foto], function (error, rows, field) {
+
+        connection.query('INSERT INTO tb_organisasi (org_nama, org_slug, org_ket, org_foto) values(?, ?, ?, ?)', [org_nama, org_slug.toLowerCase(), org_ket, org_foto], function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
                 response.ok(true, "Berhasil Menambahkan Data!", 1, 'success', res);
             }
         })
+
     }
 
 });

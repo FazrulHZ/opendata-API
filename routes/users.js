@@ -56,8 +56,8 @@ router.get('/:id', function (req, res, next) {
 
 router.post('/', upload.single('user_foto'), async function (req, res, next) {
 
-  let user_nama = req.body.user_nama.toLowerCase();
-  let user_email = req.body.user_email.toLowerCase();
+  let user_nama = req.body.user_nama;
+  let user_email = req.body.user_email;
   let user_fullname = req.body.user_fullname;
   let user_password = req.body.user_password;
   let user_lvl = req.body.user_lvl.toLowerCase();
@@ -69,7 +69,7 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
   var pass = bcrypt.hashSync('' + user_password + '', salt);
 
   const cek = await new Promise(resolve => {
-    connection.query('SELECT COUNT(user_email) AS cntEmail, COUNT(user_nama) AS cntUsernama FROM tb_user WHERE user_email = ?', [user_email], function (error, rows, field) {
+    connection.query('SELECT COUNT(user_email) AS cntEmail, COUNT(user_nama) AS cntUsernama, user_foto, user_id FROM tb_user WHERE user_email = ? AND user_nama = ?', [user_email, user_nama], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -78,13 +78,13 @@ router.post('/', upload.single('user_foto'), async function (req, res, next) {
     });
   });
 
-  if (cek.cntEmail > 0 && cek.cntUsernama > 0) {
+  if (cek.cntEmail > 0 || cek.cntUsernama > 0) {
 
     response.error(false, "Email Atau Username Telah Terdaftar!", 'empty', res);
 
   } else {
 
-    connection.query('INSERT INTO tb_user (user_nama, user_email, user_fullname, user_password, user_lvl, user_foto, org_id) values(?, ?, ?, ?, ?, ?)', [user_nama.toLowerCase(), user_email.toLowerCase(), user_fullname, pass, user_lvl, user_foto, org_id], function (error, rows, field) {
+    connection.query('INSERT INTO tb_user (user_nama, user_email, user_fullname, user_password, user_lvl, user_foto, org_id) values(?, ?, ?, ?, ?, ?, ?)', [user_nama.toLowerCase(), user_email.toLowerCase(), user_fullname, pass, user_lvl, user_foto, org_id], function (error, rows, field) {
       if (error) {
         console.log(error);
       } else {
@@ -110,8 +110,28 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
   var salt = bcrypt.genSaltSync(10);
   var pass = bcrypt.hashSync('' + user_password + '', salt);
 
+  const cekEmail = await new Promise(resolve => {
+    connection.query('SELECT COUNT(user_email) AS cnt, user_id FROM tb_user WHERE user_email = ?', [user_email], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  const cekUsernama = await new Promise(resolve => {
+    connection.query('SELECT COUNT(user_nama) AS cnt, user_id FROM tb_user WHERE user_nama = ?', [user_nama], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
   const cek = await new Promise(resolve => {
-    connection.query('SELECT COUNT(user_email) AS cntEmail, COUNT(user_nama) AS cntUsernama, user_foto, user_id FROM tb_user WHERE user_email = ?', [user_email], function (error, rows, field) {
+    connection.query('SELECT user_foto FROM tb_user WHERE user_id = ?', [user_id], function (error, rows, field) {
       if (error) {
         console.log(error)
       } else {
@@ -122,43 +142,50 @@ router.put('/', upload.single('user_foto'), async function (req, res, next) {
 
   let user_foto = req.file === undefined ? cek.user_foto : req.file.filename;
 
-  if (cek.cntEmail > 0 && cek.cntUsernama > 0 && cek.user_id != user_id) {
+  if (cekEmail.cnt > 0 && cekEmail.user_id != user_id) {
 
-    response.error(false, "Email Atau Username Telah Terdaftar!", 'empty', res);
+    response.error(false, "Email Telah Terdaftar!", 'empty', res);
 
   } else {
 
-    if (req.file === undefined) {
+    if (cekUsernama.cnt > 0 && cekUsernama.user_id != user_id) {
 
-      connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_lvl=?, user_foto=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_lvl, user_foto, org_id, user_id], function (error, rows, field) {
-        if (error) {
-          console.log(error);
-        } else {
-          response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
-        }
-      })
+      response.error(false, "Username Telah Terdaftar!", 'empty', res);
 
     } else {
 
-      fs.unlink("./public/upload/userGambar/" + cek.user_foto, (err) => {
-        if (err) {
+      if (req.file === undefined) {
 
-          console.log("failed to delete local image:" + err);
+        connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_lvl=?, user_foto=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_lvl, user_foto, org_id, user_id], function (error, rows, field) {
+          if (error) {
+            console.log(error);
+          } else {
+            response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+          }
+        })
 
-        } else {
+      } else {
 
-          console.log('successfully deleted local image');
-          connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_lvl=?, user_foto=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_lvl, user_foto, org_id, user_id], function (error, rows, field) {
-            if (error) {
-              console.log(error);
-            } else {
-              response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
-            }
-          })
+        fs.unlink("./public/upload/userGambar/" + cek.user_foto, (err) => {
+          if (err) {
 
-        }
-      });
+            console.log("failed to delete local image:" + err);
 
+          } else {
+
+            console.log('successfully deleted local image');
+            connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_lvl=?, user_foto=?, org_id=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_lvl, user_foto, org_id, user_id], function (error, rows, field) {
+              if (error) {
+                console.log(error);
+              } else {
+                response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+              }
+            })
+
+          }
+        });
+
+      }
     }
   }
 });
