@@ -6,6 +6,7 @@ let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
+var auth = require('../helper/auth');
 
 router.get('/', async function (req, res, next) {
 
@@ -42,7 +43,7 @@ router.get('/:slug', function (req, res, next) {
         });
 });
 
-router.post('/', async function (req, res, next) {
+router.post('/', auth, async function (req, res, next) {
 
     let dataset_nama = req.body.dataset_nama;
     let dataset_slug = slugify(dataset_nama.toLowerCase());
@@ -76,7 +77,7 @@ router.post('/', async function (req, res, next) {
 
 });
 
-router.put('/', async function (req, res, next) {
+router.put('/', auth, async function (req, res, next) {
 
     let dataset_id = req.body.dataset_id;
     let dataset_nama = req.body.dataset_nama;
@@ -110,7 +111,7 @@ router.put('/', async function (req, res, next) {
     }
 });
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', auth, async function (req, res) {
     var dataset_id = req.params.id;
 
     connection.query('DELETE FROM tb_dataset WHERE dataset_id=?', [dataset_id], function (error, rows, field) {

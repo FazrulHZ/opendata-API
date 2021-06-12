@@ -8,6 +8,7 @@ let slugify = require('slugify')
 
 var response = require('../helper/response');
 var connection = require('../helper/connection');
+var auth = require('../helper/auth');
 
 var storage = multer.diskStorage({
     destination: path.join(__dirname + './../public/upload/organisasiGambar'),
@@ -54,7 +55,7 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
-router.post('/', upload.single('org_foto'), async function (req, res, next) {
+router.post('/', auth, upload.single('org_foto'), async function (req, res, next) {
 
     let org_nama = req.body.org_nama;
     let org_slug = slugify(org_nama.toLowerCase());
@@ -89,7 +90,7 @@ router.post('/', upload.single('org_foto'), async function (req, res, next) {
 
 });
 
-router.put('/', upload.single('org_foto'), async function (req, res, next) {
+router.put('/', auth, upload.single('org_foto'), async function (req, res, next) {
 
     let org_id = req.body.org_id;
     let org_nama = req.body.org_nama;
@@ -121,7 +122,7 @@ router.put('/', upload.single('org_foto'), async function (req, res, next) {
     }
 });
 
-router.delete('/:id', async function (req, res) {
+router.delete('/:id', auth, async function (req, res) {
     var org_id = req.params.id;
 
     const check = await new Promise(resolve => {
