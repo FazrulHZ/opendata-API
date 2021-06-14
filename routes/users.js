@@ -61,12 +61,14 @@ router.get('/:id', auth, function (req, res, next) {
 
   var user_id = req.params.id;
 
-  connection.query('SELECT * FROM tb_user LEFT JOIN tb_organisasi ON tb_user.org_id = tb_organisasi.org_id WHERE user_id = ?', [user_id],
+  const role = req.user;
+
+  connection.query('SELECT * FROM tb_user LEFT JOIN tb_organisasi ON tb_user.org_id = tb_organisasi.org_id WHERE user_id = ?', [role.id],
     function (error, rows, field) {
       if (error) {
         console.log(error);
       } else {
-        response.ok('Data Berhasil Diambil', 1, rows, res);
+        response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
       }
     });
 });

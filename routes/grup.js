@@ -54,6 +54,40 @@ router.get('/:id', function (req, res, next) {
         });
 });
 
+router.get('/user/grup', auth, async function (req, res, next) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_grup WHERE org_id = ?', [cekAuth.org_id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT * FROM tb_grup WHERE org_id = ?', [cekAuth.org_id],
+        function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+});
+
 router.post('/', auth, upload.single('grup_foto'), async function (req, res, next) {
 
     let grup_nama = req.body.grup_nama;
