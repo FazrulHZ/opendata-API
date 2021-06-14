@@ -22,6 +22,22 @@ var upload = multer({ storage: storage });
 
 router.get('/', auth, async function (req, res, next) {
 
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  if (cekAuth.user_lvl !== 'superadmin') {
+    return res.sendStatus(403);
+  }
+
   const count = await new Promise(resolve => {
     connection.query('SELECT COUNT(*) AS cnt FROM tb_user', function (error, rows, field) {
       if (error) {
@@ -45,7 +61,7 @@ router.get('/:id', auth, function (req, res, next) {
 
   var user_id = req.params.id;
 
-  connection.query('SELECT * FROM tb_user LEFT JOIN tb_organisasi ON tb_user.org_id = tb_organisasi.org_id WHERE user_id == ?', [user_id],
+  connection.query('SELECT * FROM tb_user LEFT JOIN tb_organisasi ON tb_user.org_id = tb_organisasi.org_id WHERE user_id = ?', [user_id],
     function (error, rows, field) {
       if (error) {
         console.log(error);

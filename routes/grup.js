@@ -58,7 +58,7 @@ router.post('/', auth, upload.single('grup_foto'), async function (req, res, nex
 
     let grup_nama = req.body.grup_nama;
     let grup_slug = slugify(grup_nama.toLowerCase());
-    let grup_foto = req.file.filename;
+    let grup_foto = req.file === undefined ? "" : req.file.filename;
     let grup_deskripsi = req.body.grup_deskripsi;
 
     const check = await new Promise(resolve => {

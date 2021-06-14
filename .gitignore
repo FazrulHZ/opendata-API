@@ -1,5 +1,5 @@
 node_modules/
-public/upload/dataset/*
+public/upload/data/*
 public/upload/grupGambar/*
 public/upload/organisasiGambar/*
 public/upload/userGambar/*
