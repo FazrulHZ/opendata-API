@@ -29,6 +29,48 @@ router.get('/', async function (req, res, next) {
     });
 });
 
+router.get('/grup', async function (req, res, next) {
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_grup', function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT tb_grup.*, COUNT(tb_dataset.grup_id) as totalDataset FROM `tb_dataset` RIGHT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id GROUP BY tb_dataset.grup_id ORDER BY tb_grup.grup_nama ASC', function (error, rows, field) {
+        if (error) {
+            console.log(error);
+        } else {
+            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+        }
+    });
+});
+
+router.get('/organisasi', async function (req, res, next) {
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_organisasi', function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT tb_organisasi.*, COUNT(tb_dataset.org_id) as totalDataset FROM `tb_dataset` RIGHT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id GROUP BY tb_dataset.org_id ORDER BY tb_organisasi.org_nama ASC', function (error, rows, field) {
+        if (error) {
+            console.log(error);
+        } else {
+            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+        }
+    });
+});
+
 router.get('/:slug', function (req, res, next) {
 
     var dataset_slug = req.params.slug;
