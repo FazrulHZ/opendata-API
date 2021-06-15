@@ -11,7 +11,7 @@ var connection = require('../helper/connection');
 var auth = require('../helper/auth');
 
 var storage = multer.diskStorage({
-    destination: path.join(__dirname + './../public/upload/organisasiGambar'),
+    destination: path.join(__dirname + './../public/upload/data'),
     filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
     }
@@ -97,7 +97,7 @@ router.put('/', auth, upload.single('data_file'), async function (req, res, next
     let dataset_id = req.body.dataset_id;
 
     const check = await new Promise(resolve => {
-        connection.query('SELECT COUNT(data_slug) AS cnt, data_file, data_id FROM tb_data WHERE data_slug = ?', [data_slug], function (error, rows, field) {
+        connection.query('SELECT COUNT(data_slug) AS cnt, data_file, data_id FROM tb_data WHERE data_id = ?', [data_id], function (error, rows, field) {
             if (error) {
                 console.log(error)
             } else {
@@ -106,18 +106,61 @@ router.put('/', auth, upload.single('data_file'), async function (req, res, next
         });
     });
 
-    let data_file = req.file === undefined ? check.grup_foto : req.file.filename;
+    console.log(check);
+
+    let data_file = req.file === undefined ? check.data_file : req.file.filename;
+
+    console.log(data_file);
 
     if (check > 0 && check.data_id != data_id) {
         response.error(false, "Data Telah Terdaftar!", 'empty', res);
     } else {
-        connection.query('UPDATE tb_data SET data_nama=?, data_slug=?, data_ket=?, data_tahun=?, data_file=?, dataset_id=? WHERE data_id=?', [data_nama, data_slug, data_ket, data_tahun, data_file, dataset_id, data_id], function (error, rows, field) {
-            if (error) {
-                console.log(error);
+
+        if (check.data_file === "") {
+
+            connection.query('UPDATE tb_data SET data_nama=?, data_slug=?, data_ket=?, data_tahun=?, data_file=?, dataset_id=? WHERE data_id=?', [data_nama, data_slug, data_ket, data_tahun, data_file, dataset_id, data_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+                }
+            })
+
+        } else {
+
+            if (req.file === undefined) {
+
+                connection.query('UPDATE tb_data SET data_nama=?, data_slug=?, data_ket=?, data_tahun=?, data_file=?, dataset_id=? WHERE data_id=?', [data_nama, data_slug, data_ket, data_tahun, data_file, dataset_id, data_id], function (error, rows, field) {
+                    if (error) {
+                        console.log(error);
+                    } else {
+                        response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+                    }
+                })
+
             } else {
-                response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+
+                fs.unlink("./public/upload/data/" + check.data_file, (err) => {
+                    if (err) {
+
+                        console.log("failed to delete local file:" + err);
+
+                    } else {
+
+                        console.log('successfully deleted local file');
+                        connection.query('UPDATE tb_data SET data_nama=?, data_slug=?, data_ket=?, data_tahun=?, data_file=?, dataset_id=? WHERE data_id=?', [data_nama, data_slug, data_ket, data_tahun, data_file, dataset_id, data_id], function (error, rows, field) {
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+                            }
+                        })
+
+                    }
+                });
             }
-        })
+
+        }
     }
 });
 
