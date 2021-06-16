@@ -41,7 +41,7 @@ router.get('/grup', async function (req, res, next) {
         });
     });
 
-    connection.query('SELECT tb_grup.*, COUNT(tb_dataset.grup_id) as totalDataset FROM `tb_dataset` RIGHT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id GROUP BY tb_dataset.grup_id ORDER BY tb_grup.grup_nama ASC', function (error, rows, field) {
+    connection.query('SELECT tb_grup.*, COUNT(tb_dataset.grup_id) as totalDataset FROM tb_dataset RIGHT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id GROUP BY tb_dataset.grup_id ORDER BY tb_grup.grup_nama ASC', function (error, rows, field) {
         if (error) {
             console.log(error);
         } else {

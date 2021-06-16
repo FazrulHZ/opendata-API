@@ -44,12 +44,26 @@ router.get('/:slug', function (req, res, next) {
 
     var data_slug = req.params.slug;
 
-    connection.query('SELECT * FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id WHERE data_slug = ?', [data_slug],
+    connection.query('SELECT * FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id WHERE tb_data.data_slug = ? GROUP BY tb_data.data_id', [data_slug],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
                 response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
+            }
+        });
+});
+
+router.get('/dataset/:slug', function (req, res, next) {
+
+    var dataset_slug = req.params.slug;
+
+    connection.query('SELECT * FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id WHERE tb_dataset.dataset_slug = ?', [dataset_slug],
+        function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', 1, rows, res);
             }
         });
 });
