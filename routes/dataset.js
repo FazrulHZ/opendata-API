@@ -199,4 +199,30 @@ router.delete('/:id', auth, async function (req, res) {
     })
 });
 
+// Cari Data
+
+router.post('/cari', async function (req, res, next) {
+
+    var dataset_nama = req.body.dataset_nama;
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(*) AS cnt FROM tb_dataset WHERE dataset_nama LIKE ?', ['%' + dataset_nama + '%'], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT * FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id WHERE dataset_nama LIKE ?', ['%' + dataset_nama + '%'],
+        function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+});
+
 module.exports = router;
