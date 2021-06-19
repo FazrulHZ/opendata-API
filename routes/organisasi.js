@@ -151,4 +151,29 @@ router.delete('/:id', auth, async function (req, res) {
     });
 });
 
+// Get Dataset Berdasarkan Organisasi
+
+router.get('/dataset/:slug', async function (req, res, next) {
+
+    var org_slug = req.params.slug;
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(tb_dataset.dataset_id) AS cnt, tb_organisasi.* FROM tb_organisasi RIGHT JOIN tb_dataset ON tb_organisasi.org_id = tb_dataset.org_id WHERE tb_organisasi.org_slug = ? ORDER BY tb_dataset.created_at DESC', [org_slug], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT *, tb_dataset.created_at as datasetCreated FROM tb_organisasi RIGHT JOIN tb_dataset ON tb_organisasi.org_id = tb_dataset.org_id WHERE tb_organisasi.org_slug = ? GROUP BY tb_dataset.dataset_id ORDER BY tb_dataset.created_at DESC', [org_slug], function (error, rows, field) {
+        if (error) {
+            console.log(error);
+        } else {
+            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+        }
+    });
+});
+
 module.exports = router;
