@@ -35,7 +35,7 @@ router.get('/', auth, async function (req, res, next) {
   });
 
   if (cekAuth.user_lvl !== 'superadmin') {
-    return res.sendStatus(403);
+    return response.noAkses(res);
   }
 
   const count = await new Promise(resolve => {
@@ -87,6 +87,22 @@ router.post('/', auth, upload.single('user_foto'), async function (req, res, nex
   var salt = bcrypt.genSaltSync(10);
   var pass = bcrypt.hashSync('' + user_password + '', salt);
 
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  if (cekAuth.user_lvl !== 'superadmin') {
+    return response.noAkses(res);
+  }
+
   const cek = await new Promise(resolve => {
     connection.query('SELECT COUNT(user_email) AS cntEmail, COUNT(user_nama) AS cntUsernama, user_foto, user_id FROM tb_user WHERE user_email = ? AND user_nama = ?', [user_email, user_nama], function (error, rows, field) {
       if (error) {
@@ -128,6 +144,22 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
   //Hash Password
   var salt = bcrypt.genSaltSync(10);
   var pass = bcrypt.hashSync('' + user_password + '', salt);
+
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  if (cekAuth.user_lvl !== 'superadmin') {
+    return response.noAkses(res);
+  }
 
   const cekEmail = await new Promise(resolve => {
     connection.query('SELECT COUNT(user_email) AS cnt, user_id FROM tb_user WHERE user_email = ?', [user_email], function (error, rows, field) {
@@ -211,6 +243,22 @@ router.put('/', auth, upload.single('user_foto'), async function (req, res, next
 
 router.delete('/:id', auth, async function (req, res) {
   var user_id = req.params.id;
+
+  const role = req.user;
+
+  const cekAuth = await new Promise(resolve => {
+    connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  if (cekAuth.user_lvl !== 'superadmin') {
+    return response.noAkses(res);
+  }
 
   const check = await new Promise(resolve => {
     connection.query('SELECT * FROM tb_user WHERE user_id = ?', [user_id], function (error, rows, field) {

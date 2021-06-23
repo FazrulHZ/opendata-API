@@ -207,4 +207,62 @@ router.delete('/:id', auth, async function (req, res) {
     });
 });
 
+// ADMIN
+
+router.get('/admin/getdata', auth, async function (req, res, next) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== 'superadmin') {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id WHERE tb_dataset.org_id = ?', [cekAuth.org_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT * FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id WHERE tb_dataset.org_id = ? ORDER BY tb_data.created_at DESC', [cekAuth.org_id], function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+
+    } else {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_data', function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT * FROM tb_data LEFT JOIN tb_dataset ON tb_data.dataset_id = tb_dataset.dataset_id ORDER BY tb_data.created_at DESC', function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+    }
+});
+
 module.exports = router;

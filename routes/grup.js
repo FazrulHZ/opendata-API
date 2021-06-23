@@ -42,14 +42,14 @@ router.get('/', async function (req, res, next) {
 
 router.get('/:id', function (req, res, next) {
 
-    var grup_id = req.params.id;
+    var grup_slug = req.params.id;
 
-    connection.query('SELECT * FROM tb_grup WHERE grup_id == ?', [grup_id],
+    connection.query('SELECT * FROM tb_grup WHERE grup_slug = ?', [grup_slug],
         function (error, rows, field) {
             if (error) {
                 console.log(error);
             } else {
-                response.ok(true, 'Data Berhasil Diambil', 1, rows, res);
+                response.ok(true, 'Data Berhasil Diambil', 1, rows[0], res);
             }
         });
 });

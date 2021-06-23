@@ -225,4 +225,62 @@ router.post('/cari', async function (req, res, next) {
         });
 });
 
+// ADMIN
+
+router.get('/admin/getdata', auth, async function (req, res, next) {
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== 'superadmin') {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_dataset WHERE org_id = ?', [cekAuth.org_id], function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_dataset.*, tb_organisasi.org_nama, tb_grup.grup_nama FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id WHERE tb_dataset.org_id = ? ORDER BY tb_dataset.created_at DESC', [cekAuth.org_id], function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+
+    } else {
+
+        const count = await new Promise(resolve => {
+            connection.query('SELECT COUNT(*) AS cnt FROM tb_dataset', function (error, rows, field) {
+                if (error) {
+                    console.log(error)
+                } else {
+                    resolve(rows[0].cnt);
+                }
+            });
+        });
+
+        connection.query('SELECT tb_dataset.*, tb_organisasi.org_nama, tb_grup.grup_nama FROM tb_dataset LEFT JOIN tb_organisasi ON tb_dataset.org_id = tb_organisasi.org_id LEFT JOIN tb_grup ON tb_dataset.grup_id = tb_grup.grup_id ORDER BY tb_dataset.created_at DESC', function (error, rows, field) {
+            if (error) {
+                console.log(error);
+            } else {
+                response.ok(true, 'Data Berhasil Diambil', count, rows, res);
+            }
+        });
+    }
+});
+
 module.exports = router;

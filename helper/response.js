@@ -11,9 +11,11 @@ exports.ok = function (success, message, count, values, res) {
     res.end();
 };
 
-exports.error404 = function (res) {
+exports.noAkses = function (res) {
     var data = {
         'status': 404,
+        'success': false,
+        'message': 'Access Denied',
         'data': 'empty.'
     };
 
