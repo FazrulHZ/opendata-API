@@ -72,7 +72,7 @@ router.post('/', auth, upload.single('grup_foto'), async function (req, res, nex
     });
 
     if (check > 0) {
-        response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
+        response.error(false, "Nama Grup Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('INSERT INTO tb_grup (grup_nama, grup_slug, grup_foto, grup_deskripsi) values(?, ?, ?, ?)', [grup_nama, grup_slug.toLowerCase(), grup_foto, grup_deskripsi], function (error, rows, field) {
             if (error) {
@@ -105,7 +105,7 @@ router.put('/', auth, upload.single('grup_foto'), async function (req, res, next
     let grup_foto = req.file === undefined ? check.grup_foto : req.file.filename;
 
     if (check.cnt > 0 && check.grup_id != grup_id) {
-        response.error(false, "Nama Organisasi Telah Terdaftar!", 'empty', res);
+        response.error(false, "Nama Grup Telah Terdaftar!", 'empty', res);
     } else {
         connection.query('UPDATE tb_grup SET grup_nama=?, grup_slug=?, grup_foto=?, grup_deskripsi=? WHERE grup_id=?', [grup_nama, grup_slug, grup_foto, grup_deskripsi, grup_id], function (error, rows, field) {
             if (error) {
@@ -142,6 +142,31 @@ router.delete('/:id', auth, async function (req, res) {
                     response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
                 }
             })
+        }
+    });
+});
+
+// Get Dataset Berdasarkan Grup
+
+router.get('/dataset/:slug', async function (req, res, next) {
+
+    var grup_slug = req.params.slug;
+
+    const count = await new Promise(resolve => {
+        connection.query('SELECT COUNT(tb_dataset.dataset_id) AS cnt, tb_grup.* FROM tb_grup RIGHT JOIN tb_dataset ON tb_grup.grup_id = tb_dataset.grup_id WHERE tb_grup.grup_slug = ? ORDER BY tb_dataset.created_at DESC', [grup_slug], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0].cnt);
+            }
+        });
+    });
+
+    connection.query('SELECT *, tb_dataset.created_at as datasetCreated FROM tb_grup RIGHT JOIN tb_dataset ON tb_grup.grup_id = tb_dataset.grup_id WHERE tb_grup.grup_slug = ? GROUP BY tb_dataset.dataset_id ORDER BY tb_dataset.created_at DESC', [grup_slug], function (error, rows, field) {
+        if (error) {
+            console.log(error);
+        } else {
+            response.ok(true, 'Data Berhasil Diambil', count, rows, res);
         }
     });
 });
