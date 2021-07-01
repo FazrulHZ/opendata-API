@@ -296,4 +296,102 @@ router.delete('/:id', auth, async function (req, res) {
   }
 });
 
+// Edit data mandiri
+
+router.put('/update/datamandiri', auth, upload.single('user_foto'), async function (req, res, next) {
+
+  const role = req.user;
+
+  let user_id = role.id;
+  let user_nama = req.body.user_nama.toLowerCase();
+  let user_email = req.body.user_email.toLowerCase();
+  let user_fullname = req.body.user_fullname;
+  let user_password = req.body.user_password;
+
+  console.log(user_id);
+
+  //Hash Password
+  var salt = bcrypt.genSaltSync(10);
+  var pass = bcrypt.hashSync('' + user_password + '', salt);
+
+  const cekEmail = await new Promise(resolve => {
+    connection.query('SELECT COUNT(user_email) AS cnt, user_id FROM tb_user WHERE user_email = ?', [user_email], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  const cekUsernama = await new Promise(resolve => {
+    connection.query('SELECT COUNT(user_nama) AS cnt, user_id FROM tb_user WHERE user_nama = ?', [user_nama], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  const cek = await new Promise(resolve => {
+    connection.query('SELECT user_foto FROM tb_user WHERE user_id = ?', [user_id], function (error, rows, field) {
+      if (error) {
+        console.log(error)
+      } else {
+        resolve(rows[0]);
+      }
+    });
+  });
+
+  let user_foto = req.file === undefined ? cek.user_foto : req.file.filename;
+
+  if (cekEmail.cnt > 0 && cekEmail.user_id != user_id) {
+
+    response.error(false, "Email Telah Terdaftar!", 'empty', res);
+
+  } else {
+
+    if (cekUsernama.cnt > 0 && cekUsernama.user_id != user_id) {
+
+      response.error(false, "Username Telah Terdaftar!", 'empty', res);
+
+    } else {
+
+      if (req.file === undefined) {
+
+        connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_foto=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_foto, user_id], function (error, rows, field) {
+          if (error) {
+            console.log(error);
+          } else {
+            response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+          }
+        })
+
+      } else {
+
+        fs.unlink("./public/upload/userGambar/" + cek.user_foto, (err) => {
+          if (err) {
+
+            console.log("failed to delete local image:" + err);
+
+          } else {
+
+            console.log('successfully deleted local image');
+            connection.query('UPDATE tb_user SET user_nama=?, user_email=?, user_fullname=?, user_password=?, user_foto=? WHERE user_id=?', [user_nama, user_email, user_fullname, pass, user_foto, user_id], function (error, rows, field) {
+              if (error) {
+                console.log(error);
+              } else {
+                response.ok(true, "Berhasil Di Edit!", 1, 'success', res)
+              }
+            })
+
+          }
+        });
+
+      }
+    }
+  }
+});
+
 module.exports = router;
