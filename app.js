@@ -12,6 +12,7 @@ var grupRouter = require('./routes/grup');
 var datasetRouter = require('./routes/dataset');
 var dataRouter = require('./routes/data');
 var loginRouter = require('./routes/login');
+var infografisRouter = require('./routes/infografis');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use('/grup', grupRouter);
 app.use('/dataset', datasetRouter);
 app.use('/data', dataRouter);
 app.use('/login', loginRouter);
+app.use('/infografis', infografisRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

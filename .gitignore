@@ -1,6 +1,7 @@
 node_modules/
 public/upload/data/*
 public/upload/grupGambar/*
+public/upload/infografisGambar/*
 public/upload/organisasiGambar/*
 public/upload/userGambar/*
 public/images/*
