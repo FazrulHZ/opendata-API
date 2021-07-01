@@ -62,6 +62,22 @@ router.post('/', auth, upload.single('org_foto'), async function (req, res, next
     let org_ket = req.body.org_ket;
     let org_foto = req.file === undefined ? "" : req.file.filename;
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== 'superadmin') {
+        return response.noAkses(res);
+    }
+
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(*) AS cnt FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
             if (error) {
@@ -97,6 +113,22 @@ router.put('/', auth, upload.single('org_foto'), async function (req, res, next)
     let org_slug = slugify(org_nama.toLowerCase());
     let org_ket = req.body.org_ket;
 
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== 'superadmin') {
+        return response.noAkses(res);
+    }
+
     const check = await new Promise(resolve => {
         connection.query('SELECT COUNT(org_id) AS cnt, org_foto, org_id FROM tb_organisasi WHERE org_slug = ?', [org_slug], function (error, rows, field) {
             if (error) {
@@ -124,6 +156,22 @@ router.put('/', auth, upload.single('org_foto'), async function (req, res, next)
 
 router.delete('/:id', auth, async function (req, res) {
     var org_id = req.params.id;
+
+    const role = req.user;
+
+    const cekAuth = await new Promise(resolve => {
+        connection.query('SELECT * FROM tb_user WHERE user_id = ?', [role.id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                resolve(rows[0]);
+            }
+        });
+    });
+
+    if (cekAuth.user_lvl !== 'superadmin') {
+        return response.noAkses(res);
+    }
 
     const check = await new Promise(resolve => {
         connection.query('SELECT * FROM tb_organisasi WHERE org_id = ?', [org_id], function (error, rows, field) {
