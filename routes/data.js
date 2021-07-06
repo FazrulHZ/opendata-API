@@ -3,6 +3,7 @@ var router = express.Router();
 var multer = require('multer');
 var path = require('path');
 const fs = require('fs')
+const papa = require('papaparse')
 
 let slugify = require('slugify')
 
@@ -203,6 +204,38 @@ router.delete('/:id', auth, async function (req, res) {
                     response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
                 }
             })
+        }
+    });
+});
+
+// PAPA PARSE
+router.get('/papaparse/:file', function (req, res, next) {
+
+    var filename = req.params.file;
+    console.log(filename);
+
+    let filePath = './public/upload/data/' + filename;
+    const file = fs.createReadStream(filePath);
+
+    papa.parse(file, {
+        // download: true,
+        // header: true,
+        // step: function (results) {
+        //     console.log(results.data);
+        //     // console.log("Row errors:", results.errors);
+        //     // response.ok(true, "Berhasil Di Edit!", 1, results.data, res)
+
+        // }
+        // // complete: function (results) {
+        // //     console.log("All done!");
+        // //     console.log('Complete ', results.data.length, ' records.');
+        // // }
+
+        download: true,
+        header: true, // gives us an array of objects
+        dynamicTyping: true,
+        complete: (results) => {
+            response.ok(true, "Berhasil Membaca Data CSV!", results.data.length, results, res)
         }
     });
 });
