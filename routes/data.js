@@ -192,20 +192,30 @@ router.delete('/:id', auth, async function (req, res) {
         });
     });
 
-    fs.unlink("./public/upload/data/" + check.data_file, (err) => {
-        if (err) {
-            console.log("failed to delete local file:" + err);
-        } else {
-            console.log('successfully deleted local file');
-            connection.query('DELETE FROM tb_data WHERE data_id=?', [data_id], function (error, rows, field) {
-                if (error) {
-                    console.log(error)
-                } else {
-                    response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
-                }
-            })
-        }
-    });
+    if (check.data_file === "") {
+        connection.query('DELETE FROM tb_data WHERE data_id=?', [data_id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
+            }
+        })
+    } else {
+        fs.unlink("./public/upload/data/" + check.data_file, (err) => {
+            if (err) {
+                console.log("failed to delete local file:" + err);
+            } else {
+                console.log('successfully deleted local file');
+                connection.query('DELETE FROM tb_data WHERE data_id=?', [data_id], function (error, rows, field) {
+                    if (error) {
+                        console.log(error)
+                    } else {
+                        response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
+                    }
+                })
+            }
+        });
+    }
 });
 
 // PAPA PARSE

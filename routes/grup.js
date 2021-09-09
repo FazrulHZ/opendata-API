@@ -178,20 +178,30 @@ router.delete('/:id', auth, async function (req, res) {
         });
     });
 
-    fs.unlink("./public/upload/grupGambar/" + check.grup_foto, (err) => {
-        if (err) {
-            console.log("failed to delete local image:" + err);
-        } else {
-            console.log('successfully deleted local image');
-            connection.query('DELETE FROM tb_grup WHERE grup_id=?', [grup_id], function (error, rows, field) {
-                if (error) {
-                    console.log(error)
-                } else {
-                    response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
-                }
-            })
-        }
-    });
+    if (check.grup_foto === "") {
+        connection.query('DELETE FROM tb_grup WHERE grup_id=?', [grup_id], function (error, rows, field) {
+            if (error) {
+                console.log(error)
+            } else {
+                response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
+            }
+        })
+    } else {
+        fs.unlink("./public/upload/grupGambar/" + check.grup_foto, (err) => {
+            if (err) {
+                console.log("failed to delete local image:" + err);
+            } else {
+                console.log('successfully deleted local image');
+                connection.query('DELETE FROM tb_grup WHERE grup_id=?', [grup_id], function (error, rows, field) {
+                    if (error) {
+                        console.log(error)
+                    } else {
+                        response.ok(true, "Berhasil Menghapus Data!!", 1, 'success', res)
+                    }
+                })
+            }
+        });
+    }
 });
 
 // Get Dataset Berdasarkan Grup
